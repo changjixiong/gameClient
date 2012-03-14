@@ -62,7 +62,6 @@ typedef struct BOB_TYP
 	
 	POINT Dest;
 	POINT NextDest;
-	//int Dest_x,Dest_y;
 	enum DIR dir;
 	int nAction;
 	
