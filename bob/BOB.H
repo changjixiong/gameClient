@@ -66,8 +66,7 @@ typedef struct BOB_TYP
 	int nAction;
 	
 	LPDIRECTDRAWSURFACE7 images[MAX_BOB_FRAMES]; // the bitmap images DD surfaces
-	POINT	imagesSize[MAX_BOB_FRAMES];
-	
+	POINT	imagesSize[MAX_BOB_FRAMES];	
 } BOB, *BOB_PTR;
 
 DWORD Get_Clock(void);
