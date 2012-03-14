@@ -131,7 +131,6 @@ def convert(filesourc,filedest):
     f.write(BitmapData24)
     f.close()    
 
-#printInfo('24.bmp')
 nbegin = raw_input('Enter beginno --> ')
 nend = raw_input('Enter endno --> ')
 

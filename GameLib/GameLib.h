@@ -11,7 +11,6 @@ int Game_Debug_Textout();
 
 extern	long				Mouse_X;
 extern	long				Mouse_Y;
-extern	bool				bLBUTTONDOWN;
 extern	HWND				main_window_handle; // save the window handle
 
 #endif

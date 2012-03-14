@@ -35,10 +35,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	case WM_LBUTTONDOWN:
 		Mouse_X=LOWORD(lParam);
 		Mouse_Y=HIWORD(lParam);
-		bLBUTTONDOWN=TRUE;
 		
 		break;
-
 	case WM_COMMAND:
 		wmId    = LOWORD(wParam); 
 		wmEvent = HIWORD(wParam); 
@@ -98,8 +96,7 @@ int WINAPI WinMain(HINSTANCE hInstance,
 	if (!RegisterClassEx(&wcex))
 	{
 		return 0;
-	}
-	
+	}	
 
 	if (!(hWnd = CreateWindow(WINDOW_CLASS_NAME, 
 								WINDOW_TITLE, 

@@ -400,8 +400,6 @@ int Animate_BOB(BOB_PTR bob)
 			
 } // end Amimate_BOB
 
-
-
 int Move_BOB(BOB_PTR bob)
 {
 	if (bob->anim_counter < bob->anim_count_max)

@@ -20,7 +20,6 @@
 
 #define DDRAW_INIT_STRUCT(ddstruct) {memset(&ddstruct,0,sizeof(ddstruct));ddstruct.dwSize=sizeof(ddstruct);}
 
-
 typedef struct BITMAP_FILE_TAG 
 {
 	BITMAPFILEHEADER bitmapfileheader;

@@ -362,8 +362,6 @@ int DDraw_Init(int width, int height, int bpp, int windowed)
 	color_key.dwColorSpaceLowValue=0;
 	lpddsprimary->SetColorKey(DDCKEY_SRCBLT,&color_key);	
 	lpddsCavas=DDraw_Create_Surface(SCREEN_WIDTH,SCREEN_HEIGHT,DDSCAPS_VIDEOMEMORY);
-
-
 	
 	rectMemory.left=0;
 	rectMemory.top=0;

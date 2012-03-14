@@ -95,5 +95,4 @@ int Set_Anim_Speed_BOB(BOB_PTR bob,int speed);
 int Set_Vel_BOB(BOB_PTR bob,int xv, int yv);
 int Set_Pos_BOB(BOB_PTR bob, int x, int y);
 
-
 #endif

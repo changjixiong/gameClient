@@ -4,7 +4,6 @@
 
 long	Mouse_X;
 long	Mouse_Y;
-bool	bLBUTTONDOWN;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -38,7 +37,6 @@ BIT_OBJ					bit_obj_Ground;
 
 int Game_Init(void * parms, int num_parms)
 {
-	bLBUTTONDOWN=false;
 	Mouse_X=-1;
 	Mouse_Y=-1;
 	DDraw_Init(SCREEN_WIDTH,SCREEN_HEIGHT,SCREEN_BPP);
@@ -77,7 +75,6 @@ int Game_Init(void * parms, int num_parms)
 	Set_Anim_Speed_BOB(&animal, 4);
 	Set_Vel_BOB(&animal, 4,2);
 	Set_Pos_BOB(&animal, 400, 200);
-
 	
 	return 0;
 }
