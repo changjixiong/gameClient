@@ -56,7 +56,6 @@ typedef struct BOB_TYP
 	int num_frames;     // total number of animation frames
 	int curr_animation; // index of current animation
 	int anim_counter;   // used to time animation transitions
-	int anim_move_counter;
 	int anim_index;     // animation element index
 	int anim_count_max; // number of cycles before animation
 	int *animations[MAX_BOB_ANIMATIONS]; // animation sequences

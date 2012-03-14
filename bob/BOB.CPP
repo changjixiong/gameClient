@@ -639,7 +639,6 @@ int Set_Anim_Speed_BOB(BOB_PTR bob,int speed)
 	
 	// set speed
 	bob->anim_count_max = speed;
-	bob->anim_move_counter = speed;
 	
 	// return success
 	return(1);
