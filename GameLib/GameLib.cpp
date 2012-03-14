@@ -2,9 +2,9 @@
 #include "GameLib.h"
 #include <stdio.h>
 
-unsigned int Mouse_X;
-unsigned int Mouse_Y;
-bool					bLBUTTONDOWN;
+long	Mouse_X;
+long	Mouse_Y;
+bool	bLBUTTONDOWN;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -39,6 +39,8 @@ BIT_OBJ					bit_obj_Ground;
 int Game_Init(void * parms, int num_parms)
 {
 	bLBUTTONDOWN=false;
+	Mouse_X=-1;
+	Mouse_Y=-1;
 	DDraw_Init(SCREEN_WIDTH,SCREEN_HEIGHT,SCREEN_BPP);
 	
 	Load_BIT_OBJ(&bit_obj_Ground,"./pic/ground/ground.bmp",RGB(255,255,255));

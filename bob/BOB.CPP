@@ -4,8 +4,8 @@
 
 
 extern	DDSURFACEDESC2				ddsd;
-extern	unsigned int				Mouse_X;
-extern	unsigned int				Mouse_Y;
+extern	long						Mouse_X;
+extern	long						Mouse_Y;
 extern	bool						bLBUTTONDOWN;
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -409,109 +409,103 @@ int Move_BOB(BOB_PTR bob)
 		return 0;
 	}
 
-	//dest pos adjust
-	if (bLBUTTONDOWN)
+	switch (bob->nAction)
 	{
-		bLBUTTONDOWN=false;
-
-		if (bob->Dest.x == -1 && bob->Dest.y == -1)
+	case Action_STOP:
+		if (Mouse_X>=0 && Mouse_Y>=0)
 		{
 			bob->Dest.x=Mouse_X;
 			bob->Dest.y=Mouse_Y;
-			
 			AdjustPos(bob->Dest);
+
+			Mouse_X=-1;
+			Mouse_Y=-1;
+			
+			bob->nAction=Action_WALK;
+
+			Set_BOB_Dir(bob);
+
+			Set_Animation_BOB(bob,ANIMATION_OFFSET_WLAK + bob->dir);
 		}
-		else
+		break;
+	case Action_WALK:
+		if (Mouse_X>=0 && Mouse_Y>=0)
 		{
 			bob->NextDest.x=Mouse_X;
 			bob->NextDest.y=Mouse_Y;
 			AdjustPos(bob->NextDest);
+
+			Mouse_X=-1;
+			Mouse_Y=-1;
 		}
-	}	
-	
-	//one action circle finished
-	if (bob->animations[bob->curr_animation][bob->anim_index+1] == -1
-		&& bob->NextDest.x != -1 
-		&& bob->NextDest.y != -1)
-	{
-		bob->Dest.x = bob->NextDest.x;
-		bob->Dest.y = bob->NextDest.y;
 
-		bob->NextDest.x=-1;
-		bob->NextDest.y=-1;
-	}
-
-	//arrive dest
-	if (bob->x == bob->Dest.x && bob->y == bob->Dest.y)
-	{
-		bob->Dest.x = bob->NextDest.x;
-		bob->Dest.y	= bob->NextDest.y;
-
-		bob->NextDest.x=-1;
-		bob->NextDest.y=-1;
-	}
-
-	if (bob->x == bob->Dest.x && bob->y == bob->Dest.y)
-	{
-		bob->Dest.x = -1;
-		bob->Dest.y = -1;
-	}
-
-	if (bob->Dest.x == -1 && bob->Dest.y == -1)
-	{
-		//arrive dest, stand or attack
-		if (bob->curr_animation != ANIMATION_OFFSET_STOP + bob->dir)
+		if (bob->animations[bob->curr_animation][bob->anim_index+1] == -1)
 		{
+			if (bob->NextDest.x != -1 
+				&& bob->NextDest.y != -1)
+			{
+				bob->Dest.x = bob->NextDest.x;
+				bob->Dest.y = bob->NextDest.y;
+				
+				bob->NextDest.x=-1;
+				bob->NextDest.y=-1;
+			}		
+		}
+
+		if (bob->x == bob->Dest.x && bob->y == bob->Dest.y)
+		{
+			bob->nAction=Action_STOP;
 			Set_Animation_BOB(bob,ANIMATION_OFFSET_STOP + bob->dir);
-		}	
-		
-		bob->nAction = Action_STOP;
-		
-		return 0;
-	}
-	else
-	{
-		//walk
-		enum DIR dir=bob->dir;
-		Set_BOB_Dir(bob);
-		if (bob->dir != dir)
+		}
+		else
 		{
-			Set_Animation_BOB(bob,ANIMATION_OFFSET_WLAK + bob->dir);
-		}		
+			enum DIR dir=bob->dir;
+			Set_BOB_Dir(bob);
+			if (bob->dir != dir)
+			{
+				Set_Animation_BOB(bob,ANIMATION_OFFSET_WLAK + bob->dir);
+			}	
+		}
+		
+		break;
+	default:
+		break;
 	}
-
-
-	if (bob->dir == EAST || bob->dir == SOUTHEAST || bob->dir == NORTHEAST)
-	{
-		bob->x +=bob->xv;
-		if (bob->dir == SOUTHEAST)
+	
+	if (Action_WALK==bob->nAction)
+	{	
+		if (bob->dir == EAST || bob->dir == SOUTHEAST || bob->dir == NORTHEAST)
+		{
+			bob->x +=bob->xv;
+			if (bob->dir == SOUTHEAST)
+			{
+				bob->y += bob->yv;
+			}
+			else if (bob->dir == NORTHEAST)
+			{
+				bob->y -= bob->yv;
+			}
+		}
+		else if (bob->dir == WEST || bob->dir == SOUTHWEST || bob->dir == NORTHWEST)
+		{
+			bob->x -= bob->xv;
+			if (bob->dir == SOUTHWEST)
+			{
+				bob->y += bob->yv;
+			}
+			else if (bob->dir == NORTHWEST)
+			{
+				bob->y -= bob->yv;
+			}
+		}
+		else if (bob->dir == SOUTH)
 		{
 			bob->y += bob->yv;
 		}
-		else if (bob->dir == NORTHEAST)
+		else if (bob->dir == NORTH)
 		{
 			bob->y -= bob->yv;
 		}
-	}
-	else if (bob->dir == WEST || bob->dir == SOUTHWEST || bob->dir == NORTHWEST)
-	{
-		bob->x -= bob->xv;
-		if (bob->dir == SOUTHWEST)
-		{
-			bob->y += bob->yv;
-		}
-		else if (bob->dir == NORTHWEST)
-		{
-			bob->y -= bob->yv;
-		}
-	}
-	else if (bob->dir == SOUTH)
-	{
-		bob->y += bob->yv;
-	}
-	else if (bob->dir == NORTH)
-	{
-		bob->y -= bob->yv;
 	}
 
 	return 0;
@@ -673,10 +667,10 @@ int Set_Pos_BOB(BOB_PTR bob, int x, int y)
 	bob->x = x;
 	bob->y = y;
 
-	bob->Dest.x = x;
-	bob->Dest.y = y;
-	bob->NextDest.x = x;
-	bob->NextDest.y = y;
+	bob->Dest.x = -1;
+	bob->Dest.y = -1;
+	bob->NextDest.x = -1;
+	bob->NextDest.y = -1;
 	// return success
 	return(1);
 } // end Set_Pos_BOB
