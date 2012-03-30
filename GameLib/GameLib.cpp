@@ -2,6 +2,8 @@
 #include "GameLib.h"
 #include <stdio.h>
 
+#include "../SocketLib/SocketLib.h"
+#include "../ThreadLib/ThreadLib.h"
 long	Mouse_X;
 long	Mouse_Y;
 
@@ -34,6 +36,8 @@ int man_walk[8][10] = {{40,41,42,43,44,45,46,47,48,49},
 BOB						man;     // the player skelaton
 BOB						animal;
 BIT_OBJ					bit_obj_Ground;
+
+SocketLib::DataSocket datasock;
 
 int Game_Init(void * parms, int num_parms)
 {
@@ -75,6 +79,11 @@ int Game_Init(void * parms, int num_parms)
 	Set_Anim_Speed_BOB(&animal, 4);
 	Set_Vel_BOB(&animal, 4,2);
 	Set_Pos_BOB(&animal, 400, 200);
+
+	datasock.SetBlocking(false);
+	datasock.Connect(SocketLib::GetIPAddress("127.0.0.1"),5099);
+
+	
 	
 	return 0;
 }
@@ -122,7 +131,8 @@ int Game_Main(void * parms, int num_parms)
 
 int Game_Debug_Textout()
 {
-	char szTextOut[128];
+	char szTextOut[128];	
+
 	Draw_Text_GDI("USE ARROW KEYS TO MOVE, <ESC> TO EXIT.",0,0,RGB(0,0xE6,0xBF),lpddsCavas);
 	
 	sprintf(szTextOut,"next frame NO %d",man.anim_index);	
@@ -132,6 +142,11 @@ int Game_Debug_Textout()
 		"[pos x:%d, y:%d] [Dest x:%d, y:%d] [nextDest x:%d, y:%d]",
 		man.x,man.y,man.Dest.x, man.Dest.y,man.NextDest.x, man.NextDest.y);
 	Draw_Text_GDI(szTextOut,0,40,RGB(0,0,0xff),lpddsCavas);
+
+	if (datasock.Receive(szTextOut,128)>0)
+	{
+		Draw_Text_GDI(szTextOut,0,60,RGB(0,0,0xff),lpddsCavas);
+	}
 	
 	return 0;
 }

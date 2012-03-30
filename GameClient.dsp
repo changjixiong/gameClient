@@ -137,5 +137,109 @@ SOURCE=.\BOB\BOB.CPP
 SOURCE=.\BOB\BOB.H
 # End Source File
 # End Group
+# Begin Group "BasicLib"
+
+# PROP Default_Filter ""
+# Begin Source File
+
+SOURCE=.\BasicLib\BasicLib.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\BasicLib\BasicLibLogger.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\BasicLib\BasicLibString.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\BasicLib\BasicLibString.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\BasicLib\BasicLibTime.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\BasicLib\BasicLibTime.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\BasicLib\BasicLibTypes.h
+# End Source File
+# End Group
+# Begin Group "SocketLib"
+
+# PROP Default_Filter ""
+# Begin Source File
+
+SOURCE=.\SocketLib\Connection.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\SocketLib\SocketLib.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\SocketLib\SocketLibErrors.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\SocketLib\SocketLibErrors.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\SocketLib\SocketLibSocket.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\SocketLib\SocketLibSocket.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\SocketLib\SocketLibSystem.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\SocketLib\SocketLibSystem.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\SocketLib\SocketLibTypes.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\SocketLib\SocketSet.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\SocketLib\SocketSet.h
+# End Source File
+# End Group
+# Begin Group "ThreadLib"
+
+# PROP Default_Filter ""
+# Begin Source File
+
+SOURCE=.\ThreadLib\ThreadException.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\ThreadLib\ThreadLib.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\ThreadLib\ThreadLibFunctions.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\ThreadLib\ThreadLibFunctions.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\ThreadLib\ThreadLibMutex.h
+# End Source File
+# End Group
 # End Target
 # End Project
