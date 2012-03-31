@@ -37,7 +37,7 @@ BOB						man;     // the player skelaton
 BOB						animal;
 BIT_OBJ					bit_obj_Ground;
 
-SocketLib::DataSocket datasock;
+//SocketLib::DataSocket datasock;
 
 int Game_Init(void * parms, int num_parms)
 {
@@ -80,8 +80,8 @@ int Game_Init(void * parms, int num_parms)
 	Set_Vel_BOB(&animal, 4,2);
 	Set_Pos_BOB(&animal, 400, 200);
 
-	datasock.SetBlocking(false);
-	datasock.Connect(SocketLib::GetIPAddress("127.0.0.1"),5099);
+	//datasock.SetBlocking(false);
+	//datasock.Connect(SocketLib::GetIPAddress("127.0.0.1"),5099);
 
 	
 	
@@ -143,10 +143,10 @@ int Game_Debug_Textout()
 		man.x,man.y,man.Dest.x, man.Dest.y,man.NextDest.x, man.NextDest.y);
 	Draw_Text_GDI(szTextOut,0,40,RGB(0,0,0xff),lpddsCavas);
 
-	if (datasock.Receive(szTextOut,128)>0)
-	{
-		Draw_Text_GDI(szTextOut,0,60,RGB(0,0,0xff),lpddsCavas);
-	}
+	//if (datasock.Receive(szTextOut,128)>0)
+	//{
+	//	Draw_Text_GDI(szTextOut,0,60,RGB(0,0,0xff),lpddsCavas);
+	//}
 	
 	return 0;
 }
