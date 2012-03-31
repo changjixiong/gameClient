@@ -1,9 +1,13 @@
 #define WIN32_LEAN_AND_MEAN		// Exclude rarely-used stuff from Windows headers
 #include "GameLib.h"
 #include <stdio.h>
+#include <string>
 
 #include "../SocketLib/SocketLib.h"
 #include "../ThreadLib/ThreadLib.h"
+
+using namespace std;
+
 long	Mouse_X;
 long	Mouse_Y;
 
@@ -37,7 +41,7 @@ BOB						man;     // the player skelaton
 BOB						animal;
 BIT_OBJ					bit_obj_Ground;
 
-//SocketLib::DataSocket datasock;
+SocketLib::DataSocket datasock;
 
 int Game_Init(void * parms, int num_parms)
 {
@@ -79,11 +83,9 @@ int Game_Init(void * parms, int num_parms)
 	Set_Anim_Speed_BOB(&animal, 4);
 	Set_Vel_BOB(&animal, 4,2);
 	Set_Pos_BOB(&animal, 400, 200);
-
-	//datasock.SetBlocking(false);
-	//datasock.Connect(SocketLib::GetIPAddress("127.0.0.1"),5099);
-
 	
+	datasock.Connect(SocketLib::GetIPAddress("127.0.0.1"),5099);
+	datasock.SetBlocking(false);	
 	
 	return 0;
 }
@@ -143,10 +145,21 @@ int Game_Debug_Textout()
 		man.x,man.y,man.Dest.x, man.Dest.y,man.NextDest.x, man.NextDest.y);
 	Draw_Text_GDI(szTextOut,0,40,RGB(0,0,0xff),lpddsCavas);
 
-	//if (datasock.Receive(szTextOut,128)>0)
-	//{
-	//	Draw_Text_GDI(szTextOut,0,60,RGB(0,0,0xff),lpddsCavas);
-	//}
+	try
+	{
+		if (datasock.Receive(szTextOut,128)>0)
+		{			
+			Draw_Text_GDI(szTextOut,0,60,RGB(0,0,0xff),lpddsCavas);
+		}
+	}
+	catch (SocketLib::Exception & e)
+	{
+		Draw_Text_GDI((char *)e.PrintError().c_str(),0,60,RGB(0,0,0xff),lpddsCavas);
+	}
+	catch (...)
+	{
+	}
+
 	
 	return 0;
 }
