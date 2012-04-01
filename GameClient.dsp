@@ -186,10 +186,6 @@ SOURCE=.\BasicLib\BasicLibTypes.h
 # PROP Default_Filter ""
 # Begin Source File
 
-SOURCE=.\SocketLib\Connection.h
-# End Source File
-# Begin Source File
-
 SOURCE=.\SocketLib\SocketLib.h
 # End Source File
 # Begin Source File
