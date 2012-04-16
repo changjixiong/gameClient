@@ -43,6 +43,14 @@ BIT_OBJ					bit_obj_Ground;
 
 SocketLib::DataSocket datasock;
 
+const int		GAME_STATE_START = 1;
+const int		GAME_STATE_CONNECTED = 2;
+const int		GAME_STATE_LOGINED = 3;
+
+int				Game_State	= 0;
+string			Server_CMD	= "";
+string			Error_MSG	= "";
+
 int Game_Init(void * parms, int num_parms)
 {
 	Mouse_X=-1;
@@ -87,6 +95,7 @@ int Game_Init(void * parms, int num_parms)
 	datasock.Connect(SocketLib::GetIPAddress("127.0.0.1"),5099);
 	datasock.SetBlocking(false);	
 	
+	Game_State = GAME_STATE_START;
 	return 0;
 }
 
@@ -103,10 +112,56 @@ int Game_Shutdown(void * parms, int num_parms)
 
 int Game_Main(void * parms, int num_parms)
 {
-	
+
 	if (KEYDOWN(VK_ESCAPE))
 	{
 		PostMessage(main_window_handle,WM_CLOSE,0,0);
+	}
+
+	char szServerCMD[128]={0};
+	switch (Game_State)
+	{
+		
+		case GAME_STATE_START:
+			try
+			{
+				if (datasock.Receive(szServerCMD,128)>0)
+				{						
+					Server_CMD = szServerCMD;
+					Game_State = GAME_STATE_CONNECTED;
+				}
+			}
+			catch (SocketLib::Exception & e)
+			{
+				Error_MSG = e.PrintError();
+			}
+			catch (...)
+			{
+			}
+			break;
+
+		case GAME_STATE_CONNECTED:
+			try
+			{
+				datasock.Send("chang\r\n",strlen("chang\r\n"));
+				if (datasock.Receive(szServerCMD,128)>0)
+				{						
+					Server_CMD = szServerCMD;
+					Game_State = GAME_STATE_LOGINED;
+				}
+			}
+			catch (SocketLib::Exception & e)
+			{
+				Error_MSG = e.PrintError();
+			}
+			catch (...)
+			{
+			}
+			break;
+
+		case GAME_STATE_LOGINED:
+			break;
+
 	}
 	Start_Clock();
 	
@@ -145,21 +200,8 @@ int Game_Debug_Textout()
 		man.x,man.y,man.Dest.x, man.Dest.y,man.NextDest.x, man.NextDest.y);
 	Draw_Text_GDI(szTextOut,0,40,RGB(0,0,0xff),lpddsCavas);
 
-	try
-	{
-		if (datasock.Receive(szTextOut,128)>0)
-		{			
-			Draw_Text_GDI(szTextOut,0,60,RGB(0,0,0xff),lpddsCavas);
-		}
-	}
-	catch (SocketLib::Exception & e)
-	{
-		Draw_Text_GDI((char *)e.PrintError().c_str(),0,60,RGB(0,0,0xff),lpddsCavas);
-	}
-	catch (...)
-	{
-	}
+	Draw_Text_GDI((char *)Server_CMD.c_str(),0,60,RGB(0,0,0xff),lpddsCavas);
+	Draw_Text_GDI((char *)Error_MSG.c_str(),0,80,RGB(0,0,0xff),lpddsCavas);
 
-	
 	return 0;
 }
