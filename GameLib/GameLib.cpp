@@ -43,13 +43,62 @@ BIT_OBJ					bit_obj_Ground;
 
 SocketLib::DataSocket datasock;
 
-const int		GAME_STATE_START = 1;
-const int		GAME_STATE_CONNECTED = 2;
-const int		GAME_STATE_LOGINED = 3;
+const int		GAME_STATE_START		= 1;
+const int		GAME_STATE_CONNECTED	= 2;
+const int		GAME_STATE_LOGINING		= 3;	
+const int		GAME_STATE_LOGINED		= 4;
 
 int				Game_State	= 0;
 string			Server_CMD	= "";
 string			Error_MSG	= "";
+
+bool GetSerData(string & strData)
+{
+	char szServerCMD[128];
+	memset(szServerCMD,0,sizeof(szServerCMD));
+
+	try
+	{
+		if (datasock.Receive(szServerCMD,128)>0)
+		{						
+			strData = szServerCMD;
+
+			return true;
+		}
+	}
+	catch (SocketLib::Exception & e)
+	{
+		Error_MSG = e.PrintError();
+		return false;
+	}
+	catch (...)
+	{
+		return false;
+	}
+
+	return false;
+}
+
+bool SendSerData(const string & strData)
+{
+	try
+	{
+		if (datasock.Send(strData.c_str(),strData.length())>0)			
+			return true;
+
+	}
+	catch (SocketLib::Exception & e)
+	{
+		Error_MSG = e.PrintError();
+		return false;
+	}
+	catch (...)
+	{
+		return false;
+	}
+	
+	return false;
+}
 
 int Game_Init(void * parms, int num_parms)
 {
@@ -118,48 +167,44 @@ int Game_Main(void * parms, int num_parms)
 		PostMessage(main_window_handle,WM_CLOSE,0,0);
 	}
 
-	char szServerCMD[128]={0};
+	char szMouse_x[32];
+	char szMouse_y[32];
+	memset(szMouse_x,0,sizeof(szMouse_x));
+	memset(szMouse_y,0,sizeof(szMouse_y));
+	string DataToSend;
+
 	switch (Game_State)
 	{
 		
 		case GAME_STATE_START:
-			try
+			if (GetSerData(Server_CMD)==TRUE)
 			{
-				if (datasock.Receive(szServerCMD,128)>0)
-				{						
-					Server_CMD = szServerCMD;
-					Game_State = GAME_STATE_CONNECTED;
-				}
-			}
-			catch (SocketLib::Exception & e)
-			{
-				Error_MSG = e.PrintError();
-			}
-			catch (...)
-			{
-			}
+				Game_State = GAME_STATE_CONNECTED;
+			}			
 			break;
 
 		case GAME_STATE_CONNECTED:
-			try
+
+			if (SendSerData("chang\r\n")==TRUE)
 			{
-				datasock.Send("chang\r\n",strlen("chang\r\n"));
-				if (datasock.Receive(szServerCMD,128)>0)
-				{						
-					Server_CMD = szServerCMD;
-					Game_State = GAME_STATE_LOGINED;
-				}
+				Game_State = GAME_STATE_LOGINING;		
 			}
-			catch (SocketLib::Exception & e)
+			
+			break;
+
+		case GAME_STATE_LOGINING:
+			if (GetSerData(Server_CMD)==TRUE)
 			{
-				Error_MSG = e.PrintError();
-			}
-			catch (...)
-			{
-			}
+				Game_State = GAME_STATE_LOGINED;
+			}			
 			break;
 
 		case GAME_STATE_LOGINED:
+			ltoa(Mouse_X,szMouse_x,10);
+			ltoa(Mouse_Y,szMouse_y,10);
+			DataToSend="["+string(szMouse_x)+'|'+string(szMouse_x)+"]\r\n";
+			SendSerData(DataToSend);
+
 			break;
 
 	}
