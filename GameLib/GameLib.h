@@ -11,6 +11,7 @@ int Game_Debug_Textout();
 
 extern	long				Mouse_X;
 extern	long				Mouse_Y;
+extern	long				NeedSendData;
 extern	HWND				main_window_handle; // save the window handle
 
 #endif

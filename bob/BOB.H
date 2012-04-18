@@ -85,6 +85,7 @@ int Load_Frame_BOB(BOB_PTR bob, char * pzFilepath, int imageIndex, int FromNo, i
 int Load_Animation_BOB(BOB_PTR bob, int anim_index, int num_frames, int *sequence);
 int Destroy_BOB(BOB_PTR bob);
 int Animate_BOB(BOB_PTR bob);
+int Drive_BOB(BOB_PTR bob,int nAction, int DestX, int DestY);
 int Move_BOB(BOB_PTR bob);
 int Draw_BOB(BOB_PTR bob, LPDIRECTDRAWSURFACE7 dest);
 

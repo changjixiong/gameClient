@@ -400,6 +400,16 @@ int Animate_BOB(BOB_PTR bob)
 			
 } // end Amimate_BOB
 
+int Drive_BOB(BOB_PTR bob,int nAction, int DestX, int DestY)
+{
+	bob->NextDest.x=DestX;
+	bob->NextDest.y=DestY;
+	bob->nAction=nAction;
+	AdjustPos(bob->NextDest);
+
+	return 0;
+}
+
 int Move_BOB(BOB_PTR bob)
 {
 	if (bob->anim_counter < bob->anim_count_max)
@@ -410,32 +420,32 @@ int Move_BOB(BOB_PTR bob)
 	switch (bob->nAction)
 	{
 	case Action_STOP:
-		if (Mouse_X>=0 && Mouse_Y>=0)
-		{
-			bob->Dest.x=Mouse_X;
-			bob->Dest.y=Mouse_Y;
-			AdjustPos(bob->Dest);
-
-			Mouse_X=-1;
-			Mouse_Y=-1;
-			
-			bob->nAction=Action_WALK;
-
+// 		if (Mouse_X>=0 && Mouse_Y>=0)
+// 		{
+// 			bob->Dest.x=Mouse_X;
+// 			bob->Dest.y=Mouse_Y;
+// 			AdjustPos(bob->Dest);
+// 
+// 			Mouse_X=-1;
+// 			Mouse_Y=-1;
+// 			
+// 			bob->nAction=Action_WALK;
+// 
 			Set_BOB_Dir(bob);
 
 			Set_Animation_BOB(bob,ANIMATION_OFFSET_WLAK + bob->dir);
-		}
+// 		}
 		break;
 	case Action_WALK:
-		if (Mouse_X>=0 && Mouse_Y>=0)
-		{
-			bob->NextDest.x=Mouse_X;
-			bob->NextDest.y=Mouse_Y;
-			AdjustPos(bob->NextDest);
-
-			Mouse_X=-1;
-			Mouse_Y=-1;
-		}
+// 		if (Mouse_X>=0 && Mouse_Y>=0)
+// 		{
+// 			bob->NextDest.x=Mouse_X;
+// 			bob->NextDest.y=Mouse_Y;
+// 			AdjustPos(bob->NextDest);
+// 
+// 			Mouse_X=-1;
+// 			Mouse_Y=-1;
+// 		}
 
 		if (bob->animations[bob->curr_animation][bob->anim_index+1] == -1)
 		{

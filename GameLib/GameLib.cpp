@@ -10,6 +10,7 @@ using namespace std;
 
 long	Mouse_X;
 long	Mouse_Y;
+bool	NeedSendData;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -104,6 +105,8 @@ int Game_Init(void * parms, int num_parms)
 {
 	Mouse_X=-1;
 	Mouse_Y=-1;
+	NeedSendData=false;
+
 	DDraw_Init(SCREEN_WIDTH,SCREEN_HEIGHT,SCREEN_BPP);
 	
 	Load_BIT_OBJ(&bit_obj_Ground,"./pic/ground/ground.bmp",RGB(255,255,255));
@@ -145,6 +148,9 @@ int Game_Init(void * parms, int num_parms)
 	datasock.SetBlocking(false);	
 	
 	Game_State = GAME_STATE_START;
+
+	man.Dest.x=man.x;
+	man.Dest.y=man.y;
 	return 0;
 }
 
@@ -173,6 +179,7 @@ int Game_Main(void * parms, int num_parms)
 	memset(szMouse_y,0,sizeof(szMouse_y));
 	string DataToSend;
 
+	Start_Clock();
 	switch (Game_State)
 	{
 		
@@ -208,20 +215,26 @@ int Game_Main(void * parms, int num_parms)
 			break;
 
 	}
-	Start_Clock();
+	
 	
 	DDraw_Fill_Surface(lpddsCavas,0);
 	
 	Draw_Ground(bit_obj_Ground.lpddsurface);
 	
+	if (Game_State==GAME_STATE_LOGINED && GetSerData(Server_CMD)==TRUE)
+	{
+		string posx=Server_CMD.substr(1,Server_CMD.find('|')-1);
+		string posy=Server_CMD.substr(Server_CMD.find('|')+1,Server_CMD.find(']') - Server_CMD.find('|'));
+		Drive_BOB(&man,Action_WALK, atoi(posx.c_str()),atoi(posx.c_str()));
+	}
 	Move_BOB(&man);
-	Move_BOB(&animal);
+	//Move_BOB(&animal);
 	
 	Animate_BOB(&man);	
-	Animate_BOB(&animal);
+	//Animate_BOB(&animal);
 
 	Draw_BOB(&man, lpddsCavas);
-	Draw_BOB(&animal, lpddsCavas);
+	//Draw_BOB(&animal, lpddsCavas);
 	
 	Game_Debug_Textout();
 	
