@@ -10,7 +10,6 @@ using namespace std;
 
 long	Mouse_X;
 long	Mouse_Y;
-bool	NeedSendData;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -49,63 +48,89 @@ const int		GAME_STATE_CONNECTED	= 2;
 const int		GAME_STATE_LOGINING		= 3;	
 const int		GAME_STATE_LOGINED		= 4;
 
-int				Game_State	= 0;
-string			Server_CMD	= "";
-string			Error_MSG	= "";
+int				Game_State		= 0;
+string			ServerDataPool	= "";
+string			Error_MSG		= "";
+string			DateForSend		= "";
 
-bool GetSerData(string & strData)
+const string& GetOneMsg(string & strDest, string &strSrc)
+{
+	strDest = "";
+
+	string::size_type posEnd;
+
+	posEnd = strSrc.find("]");
+
+	if (posEnd != string::npos)
+	{
+		strDest = strSrc.substr(0, posEnd+1);
+		strSrc = strSrc.substr(posEnd+1);
+	}
+
+	return strDest;
+}
+
+int GetData(SocketLib::DataSocket &dsock, string & strDest)
 {
 	char szServerCMD[128];
+	int nDataLen = 0;
 	memset(szServerCMD,0,sizeof(szServerCMD));
 
 	try
 	{
-		if (datasock.Receive(szServerCMD,128)>0)
-		{						
-			strData = szServerCMD;
-
-			return true;
+		nDataLen = datasock.Receive(szServerCMD,128);
+		if ( nDataLen > 0 )
+		{		
+			strDest+= szServerCMD;				
 		}
 	}
 	catch (SocketLib::Exception & e)
 	{
-		Error_MSG = e.PrintError();
-		return false;
+		Error_MSG = e.PrintError();		
 	}
 	catch (...)
 	{
-		return false;
+		
 	}
 
-	return false;
+	return nDataLen;
 }
 
-bool SendSerData(const string & strData)
+int SendData(SocketLib::DataSocket &dsock, string & strSrc)
 {
+	int nDataLen=0;
+
+	if (strSrc.length()==0)
+	{
+		return 0;
+	}
+
 	try
 	{
-		if (datasock.Send(strData.c_str(),strData.length())>0)			
-			return true;
+		nDataLen = dsock.Send(strSrc.c_str(), strSrc.length());
+
+		if ( nDataLen > 0 )
+		{
+			strSrc = strSrc.substr(nDataLen);
+		}
 
 	}
 	catch (SocketLib::Exception & e)
 	{
-		Error_MSG = e.PrintError();
-		return false;
+		Error_MSG = e.PrintError();		
 	}
 	catch (...)
 	{
-		return false;
+		
 	}
 	
-	return false;
+	return nDataLen;
 }
 
 int Game_Init(void * parms, int num_parms)
 {
 	Mouse_X=-1;
 	Mouse_Y=-1;
-	NeedSendData=false;
 
 	DDraw_Init(SCREEN_WIDTH,SCREEN_HEIGHT,SCREEN_BPP);
 	
@@ -177,56 +202,63 @@ int Game_Main(void * parms, int num_parms)
 	char szMouse_y[32];
 	memset(szMouse_x,0,sizeof(szMouse_x));
 	memset(szMouse_y,0,sizeof(szMouse_y));
-	string DataToSend;
-
+	
 	Start_Clock();
+
+	GetData(datasock, ServerDataPool);
+	
+	string	ServerMsg = "";
+
+	GetOneMsg(ServerMsg, ServerDataPool);
+
+
 	switch (Game_State)
 	{
 		
 		case GAME_STATE_START:
-			if (GetSerData(Server_CMD)==TRUE)
+			if (ServerMsg=="[user name]")
 			{
+				DateForSend = "chang\r\n";
 				Game_State = GAME_STATE_CONNECTED;
 			}			
 			break;
 
 		case GAME_STATE_CONNECTED:
 
-			if (SendSerData("chang\r\n")==TRUE)
-			{
+			if (ServerMsg=="[chang is logining]")
+			{				
 				Game_State = GAME_STATE_LOGINING;		
 			}
 			
 			break;
 
 		case GAME_STATE_LOGINING:
-			if (GetSerData(Server_CMD)==TRUE)
+			if (ServerMsg=="[chang entered]")
 			{
+				DateForSend = "400|200\r\n";
 				Game_State = GAME_STATE_LOGINED;
 			}			
 			break;
 
 		case GAME_STATE_LOGINED:
-			ltoa(Mouse_X,szMouse_x,10);
-			ltoa(Mouse_Y,szMouse_y,10);
-			DataToSend="["+string(szMouse_x)+'|'+string(szMouse_x)+"]\r\n";
-			SendSerData(DataToSend);
+			if (ServerMsg.length()>0)
+			{
+				string posx=ServerMsg.substr(1,ServerMsg.find('|')-1);
+				string posy=ServerMsg.substr(ServerMsg.find('|')+1,ServerMsg.find(']') - ServerMsg.find('|'));
+				Drive_BOB(&man,Action_WALK, atoi(posx.c_str()),atoi(posx.c_str()));
+			}
 
 			break;
 
 	}
+
+	SendData(datasock, DateForSend);
 	
 	
 	DDraw_Fill_Surface(lpddsCavas,0);
 	
 	Draw_Ground(bit_obj_Ground.lpddsurface);
-	
-	if (Game_State==GAME_STATE_LOGINED && GetSerData(Server_CMD)==TRUE)
-	{
-		string posx=Server_CMD.substr(1,Server_CMD.find('|')-1);
-		string posy=Server_CMD.substr(Server_CMD.find('|')+1,Server_CMD.find(']') - Server_CMD.find('|'));
-		Drive_BOB(&man,Action_WALK, atoi(posx.c_str()),atoi(posx.c_str()));
-	}
+
 	Move_BOB(&man);
 	//Move_BOB(&animal);
 	
@@ -258,7 +290,7 @@ int Game_Debug_Textout()
 		man.x,man.y,man.Dest.x, man.Dest.y,man.NextDest.x, man.NextDest.y);
 	Draw_Text_GDI(szTextOut,0,40,RGB(0,0,0xff),lpddsCavas);
 
-	Draw_Text_GDI((char *)Server_CMD.c_str(),0,60,RGB(0,0,0xff),lpddsCavas);
+	//Draw_Text_GDI((char *)Server_CMD.c_str(),0,60,RGB(0,0,0xff),lpddsCavas);
 	Draw_Text_GDI((char *)Error_MSG.c_str(),0,80,RGB(0,0,0xff),lpddsCavas);
 
 	return 0;
