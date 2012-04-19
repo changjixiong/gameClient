@@ -161,6 +161,7 @@ int Game_Init(void * parms, int num_parms)
 	
 	Set_Animation_BOB(&man, 0);
 	Set_Anim_Speed_BOB(&man, 4);
+	//Set_Anim_Speed_BOB(&man, 0);
 	Set_Vel_BOB(&man, 4,2);
 	Set_Pos_BOB(&man, 300, 100);
 
@@ -200,22 +201,20 @@ int Game_Main(void * parms, int num_parms)
 
 	char szMouse_x[32];
 	char szMouse_y[32];
-	memset(szMouse_x,0,sizeof(szMouse_x));
-	memset(szMouse_y,0,sizeof(szMouse_y));
 	
-	Start_Clock();
-
-	GetData(datasock, ServerDataPool);
+	Start_Clock();	
 	
 	string	ServerMsg = "";
-
-	GetOneMsg(ServerMsg, ServerDataPool);
-
 
 	switch (Game_State)
 	{
 		
 		case GAME_STATE_START:
+
+			SendData(datasock, DateForSend);
+			GetData(datasock, ServerDataPool);
+			GetOneMsg(ServerMsg, ServerDataPool);
+
 			if (ServerMsg=="[user name]")
 			{
 				DateForSend = "chang\r\n";
@@ -225,6 +224,10 @@ int Game_Main(void * parms, int num_parms)
 
 		case GAME_STATE_CONNECTED:
 
+			SendData(datasock, DateForSend);
+			GetData(datasock, ServerDataPool);
+			GetOneMsg(ServerMsg, ServerDataPool);
+
 			if (ServerMsg=="[chang is logining]")
 			{				
 				Game_State = GAME_STATE_LOGINING;		
@@ -233,27 +236,46 @@ int Game_Main(void * parms, int num_parms)
 			break;
 
 		case GAME_STATE_LOGINING:
+
+			SendData(datasock, DateForSend);
+			GetData(datasock, ServerDataPool);
+			GetOneMsg(ServerMsg, ServerDataPool);
+
 			if (ServerMsg=="[chang entered]")
-			{
-				DateForSend = "400|200\r\n";
+			{				
 				Game_State = GAME_STATE_LOGINED;
 			}			
 			break;
 
 		case GAME_STATE_LOGINED:
+
+			if (Mouse_X>=0 && Mouse_Y>=0)
+			{
+				memset(szMouse_x,0,sizeof(szMouse_x));
+				memset(szMouse_y,0,sizeof(szMouse_y));
+
+				ltoa(Mouse_X, szMouse_x, 10);
+				ltoa(Mouse_Y, szMouse_y, 10);
+				
+				DateForSend = szMouse_x+string("|")+szMouse_y+string("\r\n");
+
+				Mouse_X = Mouse_Y = -1;
+			}			
+
+			SendData(datasock, DateForSend);
+			GetData(datasock, ServerDataPool);
+			GetOneMsg(ServerMsg, ServerDataPool);
+
 			if (ServerMsg.length()>0)
 			{
 				string posx=ServerMsg.substr(1,ServerMsg.find('|')-1);
 				string posy=ServerMsg.substr(ServerMsg.find('|')+1,ServerMsg.find(']') - ServerMsg.find('|'));
-				Drive_BOB(&man,Action_WALK, atoi(posx.c_str()),atoi(posx.c_str()));
+				Drive_BOB(&man,Action_WALK, atoi(posx.c_str()),atoi(posy.c_str()));
 			}
 
 			break;
 
-	}
-
-	SendData(datasock, DateForSend);
-	
+	}	
 	
 	DDraw_Fill_Surface(lpddsCavas,0);
 	
@@ -273,6 +295,7 @@ int Game_Main(void * parms, int num_parms)
 	Draw_Refresh();	
 	
 	Wait_Clock(16);
+	
 	return 0;
 }
 

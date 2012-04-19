@@ -28,20 +28,20 @@ int AdjustPos(POINT & pos)
 {
 	if (pos.x % WALK_LEN_X <= WALK_LEN_X>>1)
 	{
-		pos.x = (Mouse_X/WALK_LEN_X)*WALK_LEN_X;
+		pos.x = (pos.x/WALK_LEN_X)*WALK_LEN_X;
 	}
 	else
 	{
-		pos.x = (Mouse_X/WALK_LEN_X + 1)*WALK_LEN_X;
+		pos.x = (pos.x/WALK_LEN_X + 1)*WALK_LEN_X;
 	}
 	
 	if (pos.y % WALK_LEN_Y <= WALK_LEN_X>>1)
 	{
-		pos.y = (Mouse_Y/WALK_LEN_Y)*WALK_LEN_Y;
+		pos.y = (pos.y/WALK_LEN_Y)*WALK_LEN_Y;
 	}
 	else
 	{
-		pos.y = (Mouse_X/WALK_LEN_Y + 1)*WALK_LEN_Y;
+		pos.y = (pos.y/WALK_LEN_Y + 1)*WALK_LEN_Y;
 	}
 	
 	return 0;
@@ -420,21 +420,28 @@ int Move_BOB(BOB_PTR bob)
 	switch (bob->nAction)
 	{
 	case Action_STOP:
-// 		if (Mouse_X>=0 && Mouse_Y>=0)
-// 		{
+
+		if (bob->NextDest.x >= 0 && bob->NextDest.y >= 0)
+		{
+			bob->Dest.x=bob->NextDest.x;
+ 			bob->Dest.y=bob->NextDest.y;
+		}		
+
+		if ( bob->Dest.x != bob->x || bob->Dest.y != bob->y )
+		{
 // 			bob->Dest.x=Mouse_X;
 // 			bob->Dest.y=Mouse_Y;
 // 			AdjustPos(bob->Dest);
 // 
 // 			Mouse_X=-1;
 // 			Mouse_Y=-1;
-// 			
-// 			bob->nAction=Action_WALK;
-// 
+			
+			bob->nAction=Action_WALK;
+
 			Set_BOB_Dir(bob);
 
 			Set_Animation_BOB(bob,ANIMATION_OFFSET_WLAK + bob->dir);
-// 		}
+ 		}
 		break;
 	case Action_WALK:
 // 		if (Mouse_X>=0 && Mouse_Y>=0)
@@ -455,8 +462,8 @@ int Move_BOB(BOB_PTR bob)
 				bob->Dest.x = bob->NextDest.x;
 				bob->Dest.y = bob->NextDest.y;
 				
-				bob->NextDest.x=-1;
-				bob->NextDest.y=-1;
+// 				bob->NextDest.x=-1;
+// 				bob->NextDest.y=-1;
 			}		
 		}
 
