@@ -119,6 +119,7 @@ int WINAPI WinMain(HINSTANCE hInstance,
 	if (Game_Init()!=0)
 	{
 		MessageBox(hWnd,"Game_Init error","",MB_OK);
+		return 0;
 	}
 	
 	while(TRUE)

@@ -127,8 +127,48 @@ int SendData(SocketLib::DataSocket &dsock, string & strSrc)
 	return nDataLen;
 }
 
+int Login(const string & strName)
+{
+	string	ServerMsg = "";	
+
+	datasock.Connect(SocketLib::GetIPAddress("127.0.0.1"),5099);
+	datasock.SetBlocking(false);
+	
+	ThreadLib::YieldThread(1000);
+	GetData(datasock, ServerDataPool);
+	GetOneMsg(ServerMsg, ServerDataPool);
+	
+	if (ServerMsg!="[user name]")
+	{
+		return -1;		
+	}	
+
+	DateForSend = strName+"\r\n";		
+	SendData(datasock, DateForSend);
+
+	ThreadLib::YieldThread(1000);
+	GetData(datasock, ServerDataPool);
+	GetOneMsg(ServerMsg, ServerDataPool);
+	
+	if (ServerMsg!="["+strName+" entered]")
+	{
+		return -1;		
+	}
+
+	return 0;
+
+}
+
 int Game_Init(void * parms, int num_parms)
 {
+
+	if (Login("chang")!=0)
+	{
+		MessageBox(main_window_handle,"Login failed","",MB_OK);
+		return -1;
+	}
+
+
 	Mouse_X=-1;
 	Mouse_Y=-1;
 
@@ -169,11 +209,6 @@ int Game_Init(void * parms, int num_parms)
 	Set_Anim_Speed_BOB(&animal, 4);
 	Set_Vel_BOB(&animal, 4,2);
 	Set_Pos_BOB(&animal, 400, 200);
-	
-	datasock.Connect(SocketLib::GetIPAddress("127.0.0.1"),5099);
-	datasock.SetBlocking(false);	
-	
-	Game_State = GAME_STATE_START;
 
 	man.Dest.x=man.x;
 	man.Dest.y=man.y;
@@ -206,76 +241,30 @@ int Game_Main(void * parms, int num_parms)
 	
 	string	ServerMsg = "";
 
-	switch (Game_State)
+	if (Mouse_X>=0 && Mouse_Y>=0)
 	{
+		memset(szMouse_x,0,sizeof(szMouse_x));
+		memset(szMouse_y,0,sizeof(szMouse_y));
+
+		ltoa(Mouse_X, szMouse_x, 10);
+		ltoa(Mouse_Y, szMouse_y, 10);
 		
-		case GAME_STATE_START:
+		DateForSend = szMouse_x+string("|")+szMouse_y+string("\r\n");
 
-			SendData(datasock, DateForSend);
-			GetData(datasock, ServerDataPool);
-			GetOneMsg(ServerMsg, ServerDataPool);
+		Mouse_X = Mouse_Y = -1;
+	}			
 
-			if (ServerMsg=="[user name]")
-			{
-				DateForSend = "chang\r\n";
-				Game_State = GAME_STATE_CONNECTED;
-			}			
-			break;
+	SendData(datasock, DateForSend);
+	GetData(datasock, ServerDataPool);
+	GetOneMsg(ServerMsg, ServerDataPool);
 
-		case GAME_STATE_CONNECTED:
+	if (ServerMsg.length()>0)
+	{
+		string posx=ServerMsg.substr(1,ServerMsg.find('|')-1);
+		string posy=ServerMsg.substr(ServerMsg.find('|')+1,ServerMsg.find(']') - ServerMsg.find('|'));
+		Drive_BOB(&man,Action_WALK, atoi(posx.c_str()),atoi(posy.c_str()));
+	}
 
-			SendData(datasock, DateForSend);
-			GetData(datasock, ServerDataPool);
-			GetOneMsg(ServerMsg, ServerDataPool);
-
-			if (ServerMsg=="[chang is logining]")
-			{				
-				Game_State = GAME_STATE_LOGINING;		
-			}
-			
-			break;
-
-		case GAME_STATE_LOGINING:
-
-			SendData(datasock, DateForSend);
-			GetData(datasock, ServerDataPool);
-			GetOneMsg(ServerMsg, ServerDataPool);
-
-			if (ServerMsg=="[chang entered]")
-			{				
-				Game_State = GAME_STATE_LOGINED;
-			}			
-			break;
-
-		case GAME_STATE_LOGINED:
-
-			if (Mouse_X>=0 && Mouse_Y>=0)
-			{
-				memset(szMouse_x,0,sizeof(szMouse_x));
-				memset(szMouse_y,0,sizeof(szMouse_y));
-
-				ltoa(Mouse_X, szMouse_x, 10);
-				ltoa(Mouse_Y, szMouse_y, 10);
-				
-				DateForSend = szMouse_x+string("|")+szMouse_y+string("\r\n");
-
-				Mouse_X = Mouse_Y = -1;
-			}			
-
-			SendData(datasock, DateForSend);
-			GetData(datasock, ServerDataPool);
-			GetOneMsg(ServerMsg, ServerDataPool);
-
-			if (ServerMsg.length()>0)
-			{
-				string posx=ServerMsg.substr(1,ServerMsg.find('|')-1);
-				string posy=ServerMsg.substr(ServerMsg.find('|')+1,ServerMsg.find(']') - ServerMsg.find('|'));
-				Drive_BOB(&man,Action_WALK, atoi(posx.c_str()),atoi(posy.c_str()));
-			}
-
-			break;
-
-	}	
 	
 	DDraw_Fill_Surface(lpddsCavas,0);
 	
