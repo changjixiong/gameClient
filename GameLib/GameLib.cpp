@@ -162,11 +162,11 @@ int Login(const string & strName)
 int Game_Init(void * parms, int num_parms)
 {
 
-	if (Login("chang")!=0)
-	{
-		MessageBox(main_window_handle,"Login failed","",MB_OK);
-		return -1;
-	}
+// 	if (Login("chang")!=0)
+// 	{
+// 		MessageBox(main_window_handle,"Login failed","",MB_OK);
+// 		return -1;
+// 	}
 
 
 	Mouse_X=-1;
@@ -233,11 +233,11 @@ int Game_Main(void * parms, int num_parms)
 	{
 		PostMessage(main_window_handle,WM_CLOSE,0,0);
 	}
+	
+	Start_Clock();	
 
 	char szMouse_x[32];
 	char szMouse_y[32];
-	
-	Start_Clock();	
 	
 	string	ServerMsg = "";
 
@@ -252,11 +252,14 @@ int Game_Main(void * parms, int num_parms)
 		DateForSend = szMouse_x+string("|")+szMouse_y+string("\r\n");
 
 		Mouse_X = Mouse_Y = -1;
+		ServerMsg = string("[")+szMouse_x+string("|")+szMouse_y+string("]");
 	}			
+// 
+//  	SendData(datasock, DateForSend);
+//  	GetData(datasock, ServerDataPool);
+//  	GetOneMsg(ServerMsg, ServerDataPool);
 
-	SendData(datasock, DateForSend);
-	GetData(datasock, ServerDataPool);
-	GetOneMsg(ServerMsg, ServerDataPool);
+	
 
 	if (ServerMsg.length()>0)
 	{
